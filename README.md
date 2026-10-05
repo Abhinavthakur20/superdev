@@ -1,102 +1,84 @@
-# Full-Stack Patch Exercise
+# Task Tracker
 
-A small, intentionally imperfect task tracker. Your job is to review the codebase, identify the highest-value issues, and submit a focused patch.
+A full-stack task management application with search, filtering, and pagination. The frontend is a React single-page application and the backend is a Spring Boot REST API backed by an H2 in-memory database.
 
----
-
-## Why this exercise
-
-We want to see how you improve an existing codebase under a realistic timebox — not how much boilerplate you can generate. The strongest submissions are small, focused diffs paired with clear reasoning and genuine understanding.
-
-We care about:
-
-- **Judgment** — what you fix first and why
-- **Debugging skill** — across frontend, backend, and SQL layers
-- **Communication** — can you explain tradeoffs clearly?
-- **Understanding** — do you actually understand what you changed and why?
-
-We assume all candidates are using modern AI tools (ChatGPT, Claude, Copilot, etc.) — that is completely fine. What matters is that you understand the bugs you find, the fixes you apply, and can explain them in your own words and handwriting.
+This repository contains a completed patch exercise. The codebase had several intentional bugs across the frontend, backend, and SQL layers. The fixes applied are documented below and in `NOTES.md`.
 
 ---
 
-## Tech stack
+## Tech Stack
 
-| Layer    | Technology                      |
-| -------- | ------------------------------- |
-| Frontend | React 18 + Vite 5 (JavaScript) |
-| Backend  | Spring Boot 3.2 + Java 17      |
-| Database | H2 (in-memory, zero setup)     |
-| SQL ref  | Oracle PL/SQL artifact in `db/` |
-
-The Oracle PL/SQL file in `db/oracle/` is a reference artifact — it mirrors the app's query logic but does not run locally. You are welcome to review and improve it.
-
----
-
-## Timebox
-
-- **Spend no more than 90 minutes** (including setup, fixes, and write-up).
-- AI tools are expected and completely fine to use.
-- Judgment, clarity, and tradeoffs matter more than completeness.
-- You are **not** expected to find or fix everything.
+| Layer      | Technology                                  |
+| ---------- | ------------------------------------------- |
+| Frontend   | React 18, Vite 5, JavaScript (ES modules)  |
+| Backend    | Spring Boot 3.2, Java 17, Spring Data JPA  |
+| Database   | H2 (in-memory, auto-initialized via SQL)   |
+| SQL Ref    | Oracle PL/SQL reference artifact in `db/`  |
+| Build      | Maven Wrapper (backend), npm (frontend)    |
 
 ---
 
-## What you are expected to do
+## Project Structure
 
-1. **Run the app locally** (see setup instructions below — install dependencies first).
-2. **Explore the codebase** — frontend, backend, SQL, and the Oracle artifact.
-3. **Identify and fix** the highest-value issues you can find within the timebox.
-4. **Keep changes focused** — a small, high-quality diff beats a large rewrite.
-5. **Do not rewrite the app** — this is a patch exercise, not a rebuild.
-6. **Add a `NOTES.md` file** at the project root (see below).
-7. **Add handwritten explanations** — photographed and included in your repo (see below).
+```
+.
+├── backend/
+│   ├── src/main/java/com/internal/tasktracker/
+│   │   ├── TaskTrackerApplication.java   # Spring Boot entry point
+│   │   ├── TaskController.java           # REST controller (GET /api/tasks)
+│   │   ├── TaskRepository.java           # JPA repository with native SQL query
+│   │   ├── Task.java                     # JPA entity
+│   │   └── TaskStatus.java              # Status enum (OPEN, IN_PROGRESS, DONE)
+│   ├── src/main/resources/
+│   │   ├── application.properties        # Server, H2, and JPA configuration
+│   │   ├── schema.sql                    # Table creation script
+│   │   └── data.sql                      # Seed data
+│   ├── pom.xml
+│   └── mvnw / mvnw.cmd                   # Maven Wrapper
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx                       # Root component with search, filter, pagination
+│   │   ├── api.js                        # API client (fetch wrapper)
+│   │   ├── main.jsx                      # React entry point
+│   │   ├── styles.css                    # Application styles
+│   │   ├── components/
+│   │   │   ├── SearchBar.jsx             # Text search input
+│   │   │   ├── StatusFilter.jsx          # Status dropdown filter
+│   │   │   └── TaskTable.jsx             # Task list table with loading/error states
+│   │   └── hooks/
+│   │       ├── useTasks.js               # Data-fetching hook with race condition handling
+│   │       └── useDebounce.js            # Debounce hook for search input
+│   ├── index.html
+│   ├── vite.config.js                    # Dev server and API proxy configuration
+│   └── package.json
+├── db/
+│   ├── queries/search_tasks.sql          # H2-compatible reference query
+│   └── oracle/task_search_package.sql    # Oracle PL/SQL reference artifact
+├── handwritten/                          # Handwritten bug explanations (photos)
+├── NOTES.md                              # Detailed patch notes and tradeoff reasoning
+└── README.md
+```
 
 ---
 
-## Handwritten explanations (required)
+## Prerequisites
 
-For each bug you found and fixed, write an explanation **by hand on paper** covering:
-
-- Where the bug is (file, line, layer)
-- How you discovered it
-- What the root cause is
-- How you fixed it and why you chose that approach
-
-Photograph or scan your handwritten notes and add the images to a `handwritten/` folder at the project root. Clear, legible handwriting is sufficient — we are not judging penmanship. We are verifying that you genuinely understand what you fixed and can explain it without relying on AI-generated text.
-
-**Submissions without handwritten explanations will be considered incomplete.**
+- **Java 17+** — verify with `java --version`
+- **Node.js 18+** — verify with `node --version`
+- No Docker or external database required. H2 runs in-memory with zero setup.
 
 ---
 
-## What to include in NOTES.md
-
-Write a short file (under 300 words) covering:
-
-- **Summary of changes** — a brief overview of what you fixed (detailed explanations go in the handwritten notes)
-- **What you chose not to change** and why
-- **The biggest remaining risk** you see in this codebase
-- **What tools/AI you used** and how (e.g., "used Claude to draft the debounce hook, then adjusted the delay")
-
-Be honest and specific. We value self-awareness over perfection.
-
----
-
-## Local setup
-
-### Prerequisites
-
-- **Java 17+** (run `java --version` to check)
-- **Node.js 18+** (run `node --version` to check)
-- No Docker required. No external database required.
+## Getting Started
 
 ### Backend
 
 ```bash
 cd backend
-./mvnw spring-boot:run
+mvnw.cmd spring-boot:run
 ```
 
-On Windows, use `mvnw.cmd spring-boot:run` instead.
+On macOS/Linux, use `./mvnw spring-boot:run` instead.
 
 The API starts on **http://localhost:8080**.
 
@@ -110,117 +92,136 @@ npm run dev
 
 The app starts on **http://localhost:5173**.
 
-The Vite dev server proxies `/api/*` requests to the backend automatically.
+The Vite dev server proxies all `/api/*` requests to `http://localhost:8080` automatically.
 
----
-
-## Run instructions
+### Run Order
 
 1. Start the backend first (port 8080).
 2. Start the frontend second (port 5173).
 3. Open **http://localhost:5173** in your browser.
-4. To stop either service, press `Ctrl+C` in its terminal.
-
-### Useful URLs
-
-| URL                                        | Description           |
-| ------------------------------------------ | --------------------- |
-| http://localhost:5173                       | App UI                |
-| http://localhost:8080/api/tasks             | API — all tasks       |
-| http://localhost:8080/api/tasks?q=api       | API — search by term  |
-| http://localhost:8080/api/tasks?status=OPEN | API — filter by status|
-| http://localhost:8080/h2-console            | H2 database console   |
-
-H2 console connection: JDBC URL `jdbc:h2:mem:taskdb`, username `sa`, no password.
 
 ---
 
-## Quick smoke test
+## API Overview
 
-1. Open http://localhost:5173 — you should see a table of tasks.
-2. Type a search term (e.g., "api") — results should filter.
-3. Select a status from the dropdown — results should filter further.
-4. Try the API directly:
-   ```bash
-   curl "http://localhost:8080/api/tasks?q=api&page=1&pageSize=5"
-   ```
+The backend exposes a single endpoint:
 
----
+### `GET /api/tasks`
 
-## Submission instructions
+| Parameter  | Type   | Default | Description                          |
+| ---------- | ------ | ------- | ------------------------------------ |
+| `q`        | string | `""`    | Search term (matches title and description, case-insensitive) |
+| `status`   | string | —       | Filter by status: `OPEN`, `IN_PROGRESS`, or `DONE` |
+| `page`     | int    | `1`     | Page number (1-indexed)              |
+| `pageSize` | int    | `10`    | Number of results per page           |
 
-1. Click **"Use this template"** on the GitHub repo page to create your own copy (do **not** fork — use the template button).
-2. Keep the folder structure and startup commands unchanged.
-3. Make your changes and commit them.
-4. Add your `NOTES.md` at the project root.
-5. Add your handwritten explanation photos in a `handwritten/` folder at the project root.
-6. Push to GitHub.
-7. **Ensure the app still runs** with the same setup commands before submitting.
-8. Share the **repo URL** with us.
+**Response format:**
 
----
+```json
+{
+  "items": [ ... ],
+  "total": 25,
+  "page": 1,
+  "pageSize": 10
+}
+```
 
-## Submission timing
+**Example requests:**
 
-- **Earlier complete submissions are prioritized** in our review queue and interview scheduling.
-- The ideal latest submission time is **within 48 hours** of receiving the assignment.
-- Late submissions may be deprioritized in scheduling.
+```bash
+# All tasks (first page)
+curl "http://localhost:8080/api/tasks"
 
----
+# Search by term
+curl "http://localhost:8080/api/tasks?q=api"
 
-## Submission checklist
+# Filter by status
+curl "http://localhost:8080/api/tasks?status=OPEN"
 
-Before sharing your repo, verify:
-
-- [ ] App runs with the original setup commands (`./mvnw spring-boot:run` and `npm run dev`)
-- [ ] `NOTES.md` exists at the project root
-- [ ] `handwritten/` folder exists with photos of your handwritten explanations
-- [ ] Handwritten notes cover each bug you fixed (location, discovery, root cause, fix approach)
-- [ ] Code changes are committed and pushed
-- [ ] You have not accidentally included `node_modules/`, `target/`, or other build artifacts
+# Combined search, filter, and pagination
+curl "http://localhost:8080/api/tasks?q=api&status=OPEN&page=1&pageSize=5"
+```
 
 ---
 
-## Interview follow-up
+## Database
 
-After we review your submission, we will schedule a short call. Be ready to discuss:
+- **Engine:** H2 in-memory database, initialized automatically on startup.
+- **Schema:** Defined in `backend/src/main/resources/schema.sql`.
+- **Seed data:** Loaded from `backend/src/main/resources/data.sql`.
+- **DDL mode:** `spring.jpa.hibernate.ddl-auto=none` (schema managed by SQL scripts, not Hibernate).
 
-- What you fixed first and why you prioritized it
-- What you chose not to fix
-- Any subtle issues you found or suspected
-- Any future risks you noticed in the codebase
-- Your handwritten explanations — we may ask you to walk through them
-- How you used AI/tools — where you accepted suggestions and where you overrode them
-- How you would approach the issues differently with more time
+### H2 Console
 
----
+The H2 web console is enabled and accessible while the backend is running:
 
-## Troubleshooting
+| Setting   | Value                |
+| --------- | -------------------- |
+| URL       | http://localhost:8080/h2-console |
+| JDBC URL  | `jdbc:h2:mem:taskdb` |
+| Username  | `sa`                 |
+| Password  | *(leave blank)*      |
 
-**Backend won't start**
-- Ensure Java 17+ is installed: `java --version`
-- On macOS, if you get `Permission denied`, run: `chmod +x backend/mvnw`
-- On Windows, use `mvnw.cmd` instead of `./mvnw`
-- Check that port 8080 is free: `lsof -i :8080` (macOS/Linux) or `netstat -ano | findstr :8080` (Windows)
+### SQL Reference Files
 
-**Frontend won't start**
-- Ensure Node 18+ is installed: `node --version`
-- Run `npm install` before `npm run dev`
-- Check that port 5173 is free
-
-**API returns errors in the browser console**
-- Make sure the backend is running before the frontend
-- The Vite proxy forwards `/api/*` to `localhost:8080` — if the backend is down, requests will fail
-
-**H2 console won't connect**
-- Use JDBC URL: `jdbc:h2:mem:taskdb`
-- Username: `sa`, password: (leave blank)
-- The console is only available while the backend is running
+- `db/queries/search_tasks.sql` — H2-compatible version of the search query used by the repository layer.
+- `db/oracle/task_search_package.sql` — Oracle PL/SQL package that mirrors the application's search logic. This is a reference artifact and does not run locally.
 
 ---
 
-## Scope guidance
+## Key Bug Fixes
 
-This codebase has issues at multiple levels — some obvious, some subtle, some that are really future risks rather than current bugs. **You are not expected to find or fix everything.** Focus on what you believe is highest value, explain your reasoning, and stop when the timebox is up.
+Five bugs were identified and fixed across the backend, frontend, and SQL layers. A brief summary is provided here; see `NOTES.md` for detailed patch notes and tradeoff reasoning.
 
-Good luck.
+### 1. SQL AND/OR Operator Precedence
+
+- **Problem:** The `WHERE` clause in the search query lacked parentheses around the `(title LIKE ... OR description LIKE ...)` conditions. Due to SQL operator precedence (`AND` binds before `OR`), this could leak archived records or bypass the status filter depending on which column matched.
+- **Fix:** Added explicit parentheses in `TaskRepository.java`, `search_tasks.sql`, and `task_search_package.sql`.
+- **Impact:** Search results now correctly respect both the `archived` flag and the status filter in all cases.
+
+### 2. Frontend Infinite Loading on API Error
+
+- **Problem:** The `useTasks` hook did not reset the `loading` state on failed API requests. If the backend was unreachable, the UI would show "Loading tasks..." indefinitely instead of displaying the error.
+- **Fix:** Added `.finally()` to the fetch promise chain to guarantee `loading` resets to `false`. Stale errors are cleared at the start of each new request.
+- **Impact:** API failures now surface an error message to the user instead of an infinite loading state.
+
+### 3. Stale Response Race Condition
+
+- **Problem:** Rapid changes to the search query or status filter could cause out-of-order async responses to overwrite newer results with stale data.
+- **Fix:** Implemented an `ignore` flag in the `useEffect` cleanup function inside `useTasks.js`. Stale responses are discarded when the effect is re-triggered.
+- **Impact:** The displayed results always correspond to the most recent user input.
+
+### 4. Pagination Trap on Filter/Search Change
+
+- **Problem:** Changing the search query or status filter while on page > 1 could leave the user stranded on an empty page if the new result set had fewer total pages.
+- **Fix:** Reset the page to `1` in `App.jsx` whenever the search query or status filter changes.
+- **Impact:** Users always see results when changing filters, instead of landing on a nonexistent page.
+
+### 5. Artificial Backend Thread.sleep() Blocking
+
+- **Problem:** `TaskController.java` contained a `Thread.sleep()` call that artificially delayed every API response, blocking the HTTP request thread.
+- **Fix:** Removed the `Thread.sleep()` call.
+- **Impact:** API responses are no longer artificially delayed. The HTTP thread pool is not unnecessarily blocked.
+
+---
+
+## Validation
+
+- The application was manually tested end-to-end: backend startup, frontend startup, search, status filtering, pagination, and error handling.
+- API endpoints were verified directly via browser and `curl`.
+- The frontend production build was verified with `npm run build`.
+- No automated test suite is included in this repository.
+
+---
+
+## Notes
+
+Detailed patch decisions, tradeoff reasoning for what was intentionally left unchanged, the biggest remaining risk in the codebase, and AI/tool usage are documented in `NOTES.md`.
+
+Handwritten explanations for each bug (location, discovery, root cause, and fix approach) are included as photographs in the `handwritten/` folder.
+
+---
+
+## Submission
+
+This repository contains the completed full-stack patch exercise. The original startup commands, folder structure, and project configuration are preserved.
